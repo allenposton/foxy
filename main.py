@@ -252,6 +252,31 @@ async def r(ctx,*,searchTerm:  str=("cute ")):
         gifs = None
 
 
+import aiohttp
+
+@bot_fox.command(pass_context=True)
+async def gg(ctx, *, search):
+    embed = discord.Embed(colour=discord.Colour.blue())
+    session = aiohttp.ClientSession()
+
+    if search == '':
+        response = await session.get('https://api.giphy.com/v1/gifs/random?api_key=ICQxdYi29ul8p8uKkIFjrLzj17fr1zBx')
+        data = json.loads(await response.text())
+        embed.set_image(url=data['data']['images']['original']['url'])
+    else:
+        search.replace(' ', '+')
+        response = await session.get('http://api.giphy.com/v1/gifs/search?q=' + search + '&api_key=ICQxdYi29ul8p8uKkIFjrLzj17fr1zBx&limit=10')
+        data = json.loads(await response.text())
+        gif_choice = random.randint(0, 9)
+        x =str(data['data'][gif_choice]['images']['original']['url'])
+        embed.set_image(url=x)
+
+    await session.close()
+
+    await ctx.send(x)
+    await bot_fox.send_message(embed=embed)
+    
+
 
 @bot_fox.command(description="Pokemon research")
 async def rp(ctx,ranpoke=None):
@@ -616,12 +641,12 @@ async def cd(ctx, time: int):
             await asyncio.sleep(3)
 
             await ctx.send(f"Counting down from {time} ")
-            message = await ctx.send(embed = embed)
       while time > 0:
         time-= 1        # Sleep for 1 second
         await asyncio.sleep(1)
         embed = discord.Embed()
         embed.add_field(name="Time:",value=time)
+        message = await ctx.send(embed = embed)
 
         await message.edit(embed=embed, delete_after=time)
 
